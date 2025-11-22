@@ -36,7 +36,6 @@
             overflow: hidden;
         }
 
-        /* Camada de Horror (Ruído/Noise) */
         .horror-overlay {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -48,7 +47,6 @@
             mix-blend-mode: overlay;
         }
 
-        /* O Desenho do Iceberg */
         .iceberg-graphic {
             position: absolute;
             top: 50%;
@@ -62,7 +60,7 @@
             z-index: 1;
         }
         
-        /* --- 3. ESTRUTURA DAS SEÇÕES (LAYOUT GRANDE) --- */
+        /* --- 3. ESTRUTURA DAS SEÇÕES (SIDE BY SIDE) --- */
         section {
             min-height: 100vh;
             display: flex;
@@ -75,12 +73,14 @@
         }
 
         .container {
-            max-width: 1000px;
+            max-width: 1200px; /* Aumentado para caber lado a lado */
             width: 100%;
             display: flex;
-            flex-direction: column;
+            flex-direction: row; /* Lado a lado por padrão */
             align-items: center;
-            opacity: 0; /* Fade in via JS */
+            justify-content: space-between;
+            gap: 60px;
+            opacity: 0;
             transform: translateY(50px);
             transition: all 0.8s ease-out;
             position: relative;
@@ -91,46 +91,66 @@
             transform: translateY(0);
         }
 
+        /* Agrupamento de texto */
+        .text-group {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-start; /* Alinha à esquerda por padrão */
+            text-align: left;
+        }
+
+        /* Alternância: Seções pares invertem a ordem (Mídia Esquerda, Texto Direita) */
+        section:nth-of-type(even) .container {
+            flex-direction: row-reverse;
+        }
+        
+        section:nth-of-type(even) .text-group {
+            align-items: flex-end; /* Alinha à direita nas seções pares */
+            text-align: right;
+        }
+
+        /* Exceções: Capa, Lineup e Outro devem ser coluna centralizada */
+        #cover .container, #lineup .container, #outro .container {
+            flex-direction: column !important;
+            text-align: center !important;
+            align-items: center !important;
+            justify-content: center !important;
+        }
+        #cover .text-group, #lineup .text-group, #outro .text-group {
+            align-items: center !important;
+            text-align: center !important;
+        }
+
         /* --- 4. TIPOGRAFIA E ELEMENTOS --- */
         h1 {
             font-size: clamp(3rem, 8vw, 6rem);
             font-weight: 900;
             text-transform: uppercase;
             text-shadow: 0 5px 15px rgba(0,0,0,0.3);
-            text-align: center;
             margin-bottom: 20px;
             line-height: 0.9;
         }
 
         h2 {
             font-family: var(--font-title);
-            font-size: clamp(1.5rem, 2.5vw, 3rem);
+            font-size: clamp(1.5rem, 2rem, 2.5rem); /* Um pouco menor para caber bem */
             margin-bottom: 20px;
-            text-align: center;
             text-shadow: 0 4px 10px rgba(0,0,0,0.6);
             text-transform: uppercase;
             line-height: 1.2;
-            max-width: 90%;
         }
 
         .level-badge {
-            font-size: 1rem;
-            text-transform: uppercase;
-            letter-spacing: 4px;
-            background: rgba(0,0,0,0.3);
-            padding: 8px 20px;
-            border-radius: 30px;
-            margin-bottom: 20px;
-            backdrop-filter: blur(5px);
-            border: 1px solid rgba(255,255,255,0.2);
+            display: none; /* REMOVIDO CONFORME SOLICITADO */
         }
 
-        /* --- 5. SLOT DE MÍDIA GRANDE (GIF TENOR) --- */
+        /* --- 5. SLOT DE MÍDIA (MENOR E FLEXÍVEL) --- */
         .media-slot {
-            width: 100%;
-            max-width: 900px;
-            /* Removemos aspect-ratio fixo para deixar o Tenor ajustar, mas mantemos altura min */
-            min-height: 400px;
+            flex: 0 0 450px; /* Largura base fixa ideal */
+            max-width: 50%; /* Não deixa passar de 50% da tela */
+            /* Altura automática, sem aspect ratio forçado */
             background: rgba(0, 0, 0, 0.5);
             border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: 20px;
@@ -144,24 +164,23 @@
             box-shadow: 0 30px 60px rgba(0,0,0,0.5);
             position: relative;
             overflow: hidden;
-            margin: 20px 0;
             padding: 10px;
         }
 
         .media-slot:hover {
             border-color: #fff;
-            transform: scale(1.01);
+            transform: scale(1.02);
         }
 
         .media-desc {
             font-size: 1.1rem;
             font-style: italic;
-            opacity: 0.8;
-            margin-top: 15px;
-            text-align: center;
+            opacity: 0.9;
+            margin-top: 20px;
+            max-width: 90%;
         }
 
-        /* Slot de Terror */
+        /* Horror Slot */
         .horror-slot {
             border-color: #800000;
             background: rgba(30, 0, 0, 0.8);
@@ -169,38 +188,31 @@
         }
         .horror-slot h2 { color: #ff4444; font-family: var(--font-horror); }
 
-        /* --- 6. FRASES FLUTUANTES (QUOTES) --- */
+        /* --- 6. QUOTES --- */
         .floating-quote {
             position: absolute;
             font-family: 'Cinzel', serif;
             font-style: italic;
-            color: rgba(255, 255, 255, 0.2); 
+            color: rgba(255, 255, 255, 0.15); 
             pointer-events: none;
             z-index: 1;
             white-space: nowrap;
-            animation: floatText 8s infinite ease-in-out;
+            animation: floatText 10s infinite ease-in-out;
             font-weight: 900;
-            text-shadow: 0 0 20px rgba(255,255,255,0.1);
             font-size: 3rem; 
         }
-
         @keyframes floatText {
             0%, 100% { transform: translateY(0) rotate(-2deg); }
             50% { transform: translateY(-30px) rotate(2deg); }
         }
+        .q-left { top: 10%; left: -5%; }
+        .q-right { bottom: 10%; right: -5%; animation-delay: 1s; }
+        .horror-quote { color: rgba(255, 0, 0, 0.3); font-family: var(--font-horror); }
 
-        .q-left { top: 20%; left: -5%; }
-        .q-right { bottom: 20%; right: -5%; animation-delay: 1s; }
-        
-        .horror-quote {
-            color: rgba(255, 0, 0, 0.3);
-            font-family: var(--font-horror);
-        }
-
-        /* --- 7. NAVEGAÇÃO LATERAL --- */
+        /* --- 7. NAVEGAÇÃO --- */
         .depth-gauge {
             position: fixed;
-            right: 30px;
+            right: 20px;
             top: 50%;
             transform: translateY(-50%);
             display: flex;
@@ -208,7 +220,6 @@
             gap: 15px;
             z-index: 100;
         }
-
         .depth-dot {
             width: 10px;
             height: 10px;
@@ -219,7 +230,7 @@
         }
         .depth-dot.active { background: #fff; transform: scale(1.5); box-shadow: 0 0 15px #fff; }
 
-        /* --- 8. EFEITOS --- */
+        /* --- 8. EFEITOS E LINEUP --- */
         .glitch-text {
             animation: glitch 3s infinite;
             color: #FF0000 !important;
@@ -233,6 +244,29 @@
             100% { transform: skew(0deg); }
         }
 
+        .enemies-grid {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 30px;
+            max-width: 100%;
+        }
+        .enemy-item {
+            background: rgba(255, 0, 0, 0.1);
+            border: 1px solid rgba(255, 0, 0, 0.3);
+            padding: 5px 15px;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            transition: 0.3s;
+        }
+        .enemy-item:hover {
+            background: rgba(255, 0, 0, 0.4);
+            transform: scale(1.05);
+            color: #ffaaaa;
+        }
+
         /* Movimento Iceberg */
         body.lvl-start .iceberg-graphic { transform: translate(-50%, -35%) scale(1.0); }
         body.lvl-surface .iceberg-graphic { transform: translate(-50%, -40%) scale(1.1); }
@@ -241,6 +275,26 @@
         body.lvl-abyss .iceberg-graphic { transform: translate(-50%, -80%) scale(1.5); filter: brightness(0.3) grayscale(1); }
         body.lvl-abyss .scenery-layer { background: #050000 !important; }
         body.lvl-abyss .horror-overlay { opacity: 0.2; }
+
+        /* RESPONSIVIDADE */
+        @media (max-width: 900px) {
+            .container {
+                flex-direction: column !important;
+                text-align: center;
+                gap: 30px;
+            }
+            .text-group {
+                align-items: center !important;
+                text-align: center !important;
+            }
+            .media-slot {
+                max-width: 100%;
+                flex: auto;
+                width: 100%;
+            }
+            .iceberg-graphic { width: 600px; }
+            h1 { font-size: 3.5rem; }
+        }
 
     </style>
 </head>
@@ -284,33 +338,32 @@
     <!-- NAVEGAÇÃO -->
     <nav class="depth-gauge">
         <div class="depth-dot active" onclick="scrollToId('cover')"></div>
-        <!-- Superfície -->
         <div class="depth-dot" onclick="scrollToId('s1')"></div>
         <div class="depth-dot" onclick="scrollToId('s2')"></div>
         <div class="depth-dot" onclick="scrollToId('s3')"></div>
-        <!-- Raso -->
         <div class="depth-dot" onclick="scrollToId('r1')"></div>
         <div class="depth-dot" onclick="scrollToId('r2')"></div>
         <div class="depth-dot" onclick="scrollToId('r3')"></div>
-        <!-- Profundo -->
         <div class="depth-dot" onclick="scrollToId('p1')"></div>
         <div class="depth-dot" onclick="scrollToId('p2')"></div>
         <div class="depth-dot" onclick="scrollToId('p3')"></div>
-        <!-- Abismo -->
         <div class="depth-dot" onclick="scrollToId('a1')"></div>
         <div class="depth-dot" onclick="scrollToId('a2')"></div>
+        <div class="depth-dot" onclick="scrollToId('lineup')"></div>
         <div class="depth-dot" onclick="scrollToId('outro')"></div>
     </nav>
 
-    <!-- CAPA -->
+    <!-- CAPA (CENTRALIZADA) -->
     <section id="cover" data-lvl="lvl-start" data-bg="linear-gradient(180deg, #F48FB1 0%, #F06292 100%)">
         <div class="container">
-            <span style="letter-spacing: 5px; text-transform: uppercase;">Dossiê Completo</span>
-            <h1>Vida e Morte de<br>Tulla Luana</h1>
-            <p style="font-size: 1.2rem; margin-top: 20px; max-width: 600px; text-align: center;">
-                Mergulhe nas camadas da "Web Diva". Dos memes virais às tragédias e crimes reais.
-            </p>
-            <i class="fa-solid fa-chevron-down" style="font-size: 2rem; margin-top: 50px; animation: bounce 2s infinite;"></i>
+            <div class="text-group" style="align-items: center; text-align: center;">
+                <span style="letter-spacing: 5px; text-transform: uppercase;">Dossiê Completo</span>
+                <h1>Vida e Morte de<br>Tulla Luana</h1>
+                <p style="font-size: 1.2rem; margin-top: 20px; max-width: 600px; text-align: center;">
+                    Mergulhe nas camadas da "Web Diva". Dos memes virais às tragédias e crimes reais.
+                </p>
+                <i class="fa-solid fa-chevron-down" style="font-size: 2rem; margin-top: 50px; animation: bounce 2s infinite;"></i>
+            </div>
         </div>
     </section>
 
@@ -320,41 +373,46 @@
     <section id="s1" data-lvl="lvl-surface" data-bg="linear-gradient(180deg, #4FC3F7 0%, #29B6F6 100%)">
         <div class="floating-quote q-left">"MOEDAS VERDES NÃO!"</div>
         <div class="container">
-            <div class="level-badge">Nível 1: Superfície</div>
-            <h2>PROPAGANDA ENGANOSA DA COLHEITA FELIZ</h2>
+            <div class="text-group">
+                <!-- Badge removido -->
+                <h2>PROPAGANDA ENGANOSA DA COLHEITA FELIZ</h2>
+                <p class="media-desc">O vídeo fundador no Orkut. A revolta pelas moedas verdes vs douradas.</p>
+            </div>
             <div class="media-slot">
                 <div class="tenor-gif-embed" data-postid="17227742" data-share-method="host" data-aspect-ratio="1" data-width="100%"><a href="https://tenor.com/view/tulla-luana-web-diva-moves-dancing-feeling-it-gif-17227742">Tulla Luana Web Diva GIF</a>from <a href="https://tenor.com/search/tulla+luana-gifs">Tulla Luana GIFs</a></div> <script type="text/javascript" async src="https://tenor.com/embed.js"></script>
             </div>
-            <p class="media-desc">O vídeo fundador no Orkut. A revolta pelas moedas verdes vs douradas.</p>
         </div>
     </section>
 
-    <!-- 2. BURGUER KING -->
+    <!-- 2. BURGUER KING (INVERTIDO PELO CSS) -->
     <section id="s2" data-lvl="lvl-surface" data-bg="linear-gradient(180deg, #29B6F6 0%, #039BE5 100%)">
         <div class="floating-quote q-right">"NÃO ADMITO SER DESRESPEITADA!"</div>
         <div class="container">
-            <div class="level-badge">Nível 1: Superfície</div>
-            <h2>WEB DIVA NO SEU 3° PASSEIO TEVE UM DESCONTROLE POR CAUSA DO ATEND. DO GER.DO BURGUER KING!</h2>
+            <div class="text-group">
+                <!-- Badge removido -->
+                <h2>DESCONTROLE POR CAUSA DO GERENTE DO BURGER KING!</h2>
+                <p class="media-desc">O meme global. Tulla de preto surtando no BK.</p>
+            </div>
             <div class="media-slot">
                 <div class="tenor-gif-embed" data-postid="17336791" data-share-method="host" data-aspect-ratio="1" data-width="100%"><a href="https://tenor.com/view/tulla-luana-black-shirt-burger-king-gif-17336791">Tulla Luana Black Shirt GIF</a>from <a href="https://tenor.com/search/tulla+luana-gifs">Tulla Luana GIFs</a></div> <script type="text/javascript" async src="https://tenor.com/embed.js"></script>
             </div>
-            <p class="media-desc">O meme global. Tulla de preto surtando no BK.</p>
         </div>
     </section>
 
-    <!-- 3. TRAIÇÃO (SUBSTITUI BRIGA CELULAR) -->
+    <!-- 3. TRAIÇÃO -->
     <section id="s3" data-lvl="lvl-surface" data-bg="linear-gradient(180deg, #039BE5 0%, #0288D1 100%)">
         <div class="floating-quote q-left">"ME TRAIU COM OUTRA!"</div>
         <div class="container">
-            <div class="level-badge">Nível 1: Superfície</div>
-            <h2>João Carlos conta como traiu sua adorável amada Web Diva Tulla Luana</h2>
+            <div class="text-group">
+                <!-- Badge removido -->
+                <h2>João Carlos conta como traiu sua adorável amada</h2>
+                <p class="media-desc">A exposição total da intimidade e o drama conjugal no chuveiro.</p>
+            </div>
             <div class="media-slot">
                 <div class="tenor-gif-embed" data-postid="12089486" data-share-method="host" data-aspect-ratio="1.78" data-width="100%"><a href="https://tenor.com/view/tulla-luana-jo%C3%A3o-carlos-shower-taking-a-shower-s-hower-together-gif-12089486">Tulla Luana João Carlos GIF</a>from <a href="https://tenor.com/search/tulla+luana-gifs">Tulla Luana GIFs</a></div> <script type="text/javascript" async src="https://tenor.com/embed.js"></script>
             </div>
-            <p class="media-desc">A exposição total da intimidade e o drama conjugal no chuveiro.</p>
         </div>
     </section>
-
 
     <!-- === NÍVEL 2: RASO === -->
 
@@ -362,25 +420,29 @@
     <section id="r1" data-lvl="lvl-shallow" data-bg="linear-gradient(180deg, #0288D1 0%, #0277BD 100%)">
         <div class="floating-quote q-right">"SUBGERENTE INCOMPETENTE!"</div>
         <div class="container">
-            <div class="level-badge">Nível 2: Raso</div>
-            <h2>SUBGERENTE DO TENDA ATACADO D PEDRO EM QUESTÃO É EXTREMAMENTE INCOMPETENTE!</h2>
+            <div class="text-group">
+                <!-- Badge removido -->
+                <h2>SUBGERENTE DO TENDA ATACADO É EXTREMAMENTE INCOMPETENTE!</h2>
+                <p class="media-desc">"Cuspo na sua cara!" - Humilhando autoridade em público.</p>
+            </div>
             <div class="media-slot">
                 <div class="tenor-gif-embed" data-postid="11927848" data-share-method="host" data-aspect-ratio="1" data-width="100%"><a href="https://tenor.com/view/tulla-meme-nojo-cuspe-drinkand-blow-gif-11927848">Tulla Meme GIF</a>from <a href="https://tenor.com/search/tulla-gifs">Tulla GIFs</a></div> <script type="text/javascript" async src="https://tenor.com/embed.js"></script>
             </div>
-            <p class="media-desc">"Cuspo na sua cara!" - Humilhando autoridade em público.</p>
         </div>
     </section>
 
-    <!-- 5. PABLLO VITTAR (SUBSTITUI JANA) -->
+    <!-- 5. PABLLO VITTAR -->
     <section id="r2" data-lvl="lvl-shallow" data-bg="linear-gradient(180deg, #0277BD 0%, #01579B 100%)">
         <div class="floating-quote q-left">"QUE CARA É ESSA?"</div>
         <div class="container">
-            <div class="level-badge">Nível 2: Raso</div>
-            <h2>PABLLO VITTAR DEFORMADA?</h2>
+            <div class="text-group">
+                <!-- Badge removido -->
+                <h2>PABLLO VITTAR DEFORMADA?</h2>
+                <p class="media-desc">Quando ela apavorou a drag queen por causa de uma foto.</p>
+            </div>
             <div class="media-slot">
                 <div class="tenor-gif-embed" data-postid="10329286" data-share-method="host" data-aspect-ratio="1" data-width="100%"><a href="https://tenor.com/view/tulla-luana-pabllo-vittar-meme-gif-10329286">Tulla Luana GIF</a>from <a href="https://tenor.com/search/tulla-gifs">Tulla GIFs</a></div> <script type="text/javascript" async src="https://tenor.com/embed.js"></script>
             </div>
-            <p class="media-desc">Quando ela apavorou a drag queen por causa de uma foto.</p>
         </div>
     </section>
 
@@ -388,15 +450,16 @@
     <section id="r3" data-lvl="lvl-shallow" data-bg="linear-gradient(180deg, #01579B 0%, #1565C0 100%)">
         <div class="floating-quote q-right">"CALA A BOCA SUA INÚTIL!"</div>
         <div class="container">
-            <div class="level-badge">Nível 2: Raso</div>
-            <h2>MAIS UMA VEZ VOU ATRÁS DOS MEUS DIREITOS E DESSA VEZ CONTRA A OPERADORA TIM!!!</h2>
+            <div class="text-group">
+                <!-- Badge removido -->
+                <h2>VOU ATRÁS DOS MEUS DIREITOS CONTRA A OPERADORA TIM!!!</h2>
+                <p class="media-desc">A crueldade nua e crua contra o telemarketing.</p>
+            </div>
             <div class="media-slot">
                 <div class="tenor-gif-embed" data-postid="17126909" data-share-method="host" data-aspect-ratio="1" data-width="100%"><a href="https://tenor.com/view/web-diva-tulla-luana-tulla-luana-fontes-dos-santos-youtuber-break-phone-angry-gif-17126909">Web Diva Tulla Luana Tulla Luana Fontes Dos Santos GIF</a>from <a href="https://tenor.com/search/web+diva+tulla+luana-gifs">Web Diva Tulla Luana GIFs</a></div> <script type="text/javascript" async src="https://tenor.com/embed.js"></script>
             </div>
-            <p class="media-desc">A crueldade nua e crua contra o telemarketing.</p>
         </div>
     </section>
-
 
     <!-- === NÍVEL 3: PROFUNDO === -->
 
@@ -404,25 +467,29 @@
     <section id="p1" data-lvl="lvl-deep" data-bg="linear-gradient(180deg, #1565C0 0%, #0D47A1 100%)">
         <div class="floating-quote q-left">"VOU TACAR FOGO NESSA BOSTA!"</div>
         <div class="container">
-            <div class="level-badge">Nível 3: Profundo</div>
-            <h2>Atenção: Problemas com Sky e CPFL após o temporal</h2>
+            <div class="text-group">
+                <!-- Badge removido -->
+                <h2>Problemas com Sky e CPFL após o temporal</h2>
+                <p class="media-desc">"Você confirmou que minha casa é bagunçada?" - A paranoia começa.</p>
+            </div>
             <div class="media-slot" style="border-color: #FFD54F;">
                 <div class="tenor-gif-embed" data-postid="10470554" data-share-method="host" data-aspect-ratio="1.07843" data-width="100%"><a href="https://tenor.com/view/tulla-luana-tullaluana-gif-10470554">Tulla Luana GIF</a>from <a href="https://tenor.com/search/tulla-gifs">Tulla GIFs</a></div> <script type="text/javascript" async src="https://tenor.com/embed.js"></script>
             </div>
-            <p class="media-desc">"Você confirmou que minha casa é bagunçada?" - A paranoia começa.</p>
         </div>
     </section>
 
-    <!-- 8. PCC (NOVO) -->
+    <!-- 8. PCC -->
     <section id="p2" data-lvl="lvl-deep" data-bg="linear-gradient(180deg, #0D47A1 0%, #1A237E 100%)">
         <div class="floating-quote q-right">"VEM PRIMEIRO COMANDO!"</div>
         <div class="container">
-            <div class="level-badge">Nível 3: Profundo</div>
-            <h2>BRIGA NA SORVETERIA COM O PCC</h2>
+            <div class="text-group">
+                <!-- Badge removido -->
+                <h2>BRIGA NA SORVETERIA COM O PCC</h2>
+                <p class="media-desc">A lenda urbana de que ela desafiou uma facção criminosa por causa de sorvete.</p>
+            </div>
             <div class="media-slot" style="border-color: #90CAF9;">
                 <div class="tenor-gif-embed" data-postid="17514519976022374760" data-share-method="host" data-aspect-ratio="1" data-width="100%"><a href="https://tenor.com/view/acervogifs-pandlr-tulla-luana-bcharts-briga-gif-17514519976022374760">Acervogifs Pandlr GIF</a>from <a href="https://tenor.com/search/acervogifs-gifs">Acervogifs GIFs</a></div> <script type="text/javascript" async src="https://tenor.com/embed.js"></script>
             </div>
-            <p class="media-desc">A lenda urbana de que ela desafiou uma facção criminosa por causa de sorvete.</p>
         </div>
     </section>
 
@@ -430,28 +497,31 @@
     <section id="p3" data-lvl="lvl-deep" data-bg="linear-gradient(180deg, #1A237E 0%, #311B92 100%)">
         <div class="floating-quote q-left">"ESTÃO OLHANDO PRA MIM..."</div>
         <div class="container">
-            <div class="level-badge">Nível 3: Profundo</div>
-            <h2>aquele baixinho ali aquela coisa nanica</h2>
+            <div class="text-group">
+                <!-- Badge removido -->
+                <h2>aquele baixinho ali aquela coisa nanica</h2>
+                <p class="media-desc">Surto persecutório no hotel. A sensação de estar sendo vigiada.</p>
+            </div>
             <div class="media-slot" style="border-color: #B39DDB;">
                 <div class="tenor-gif-embed" data-postid="22982801" data-share-method="host" data-aspect-ratio="1.14695" data-width="100%"><a href="https://tenor.com/view/tulla-coisa-nanica-luana-gif-22982801">Tulla Coisa GIF</a>from <a href="https://tenor.com/search/tulla-gifs">Tulla GIFs</a></div> <script type="text/javascript" async src="https://tenor.com/embed.js"></script>
             </div>
-            <p class="media-desc">Surto persecutório no hotel. A sensação de estar sendo vigiada.</p>
         </div>
     </section>
 
-
-    <!-- === NÍVEL 4: O ABISMO (O LADO SOMBRIO) === -->
+    <!-- === NÍVEL 4: O ABISMO === -->
 
     <!-- 10. HORST -->
     <section id="a1" data-lvl="lvl-abyss" data-bg="linear-gradient(180deg, #150000 0%, #050000 100%)">
         <div class="floating-quote horror-quote q-right">"JÁ VAI TARDE!"</div>
         <div class="container">
-            <div class="level-badge" style="border-color: red; color: red;">Nível 4: O Abismo</div>
-            <h2 class="glitch-text">O HORST MORREU</h2>
+            <div class="text-group">
+                <!-- Badge removido -->
+                <h2 class="glitch-text">O HORST MORREU</h2>
+                <p class="media-desc">"Achei foi pouco! Queime no inferno!" - A reação macabra à morte do padrasto.</p>
+            </div>
             <div class="media-slot horror-slot">
                 <div class="tenor-gif-embed" data-postid="7911853" data-share-method="host" data-aspect-ratio="1.09453" data-width="100%"><a href="https://tenor.com/view/tulla-luana-salientada-gif-7911853">Tulla Luana GIF</a>from <a href="https://tenor.com/search/tulla-gifs">Tulla GIFs</a></div> <script type="text/javascript" async src="https://tenor.com/embed.js"></script>
             </div>
-            <p class="media-desc">"Achei foi pouco! Queime no inferno!" - A reação macabra à morte do padrasto.</p>
         </div>
     </section>
 
@@ -459,20 +529,148 @@
     <section id="a2" data-lvl="lvl-abyss" data-bg="#000000">
         <div class="floating-quote horror-quote q-left" style="font-size: 4rem;">"NÃO TEM CURA!"</div>
         <div class="container">
-            <div class="level-badge" style="border-color: red; color: red;">Fundo do Poço</div>
-            <h2 class="glitch-text" style="font-size: 3.5rem;">CASO NICKI MINAJ</h2>
+            <div class="text-group">
+                <!-- Badge removido -->
+                <h2 class="glitch-text" style="font-size: 3.5rem;">CASO NICKI MINAJ</h2>
+                <p class="media-desc">"Você é escura por fora e por dentro." O racismo explícito que manchou sua história.</p>
+            </div>
             <div class="media-slot horror-slot" style="border: 3px solid red; box-shadow: 0 0 50px red;">
                 <div class="tenor-gif-embed" data-postid="4488682849370741506" data-share-method="host" data-aspect-ratio="1.72917" data-width="100%"><a href="https://tenor.com/view/tulla-luana-lady-katy-tulla-luana-tulla-luana-cachorro-gif-4488682849370741506">Tulla Luana Lady Katy Tulla Luana Cachorro GIF</a>from <a href="https://tenor.com/search/tulla+luana+lady+katy-gifs">Tulla Luana Lady Katy GIFs</a></div> <script type="text/javascript" async src="https://tenor.com/embed.js"></script>
             </div>
-            <p class="media-desc">"Você é escura por fora e por dentro." O racismo explícito que manchou sua história.</p>
+        </div>
+    </section>
+
+    <!-- LINE UP (ORGANIZADO POR POPULARIDADE/RELEVÂNCIA) -->
+    <section id="lineup" data-lvl="lvl-abyss" data-bg="#000000">
+        <div class="container">
+            <div class="text-group" style="align-items: center; text-align: center;">
+                <div class="level-badge" style="border-color: #555; color: #aaa;">BÔNUS</div>
+                <h2 style="font-family: var(--font-horror); color: #ff6666;">INIMIGOS DECLARADOS</h2>
+                <p style="color:#888; margin-bottom: 20px;">Inimigos declarados e processos em andamento</p>
+                
+                <div class="enemies-grid">
+                    <!-- GOD TIER (As marcas e inimigos mais icônicos) -->
+                    <div class="enemy-item" style="border-color: red; color: #ffcccc;">Burger King</div>
+                    <div class="enemy-item" style="border-color: red; color: #ffcccc;">Tim</div>
+                    <div class="enemy-item" style="border-color: red; color: #ffcccc;">Vostu Jogos</div>
+                    <div class="enemy-item" style="border-color: red; color: #ffcccc;">Vivo</div>
+                    <div class="enemy-item" style="border-color: red; color: #ffcccc;">CPFL</div>
+                    <div class="enemy-item" style="border-color: red; color: #ffcccc;">Nicki Minaj</div>
+                    <div class="enemy-item" style="border-color: red; color: #ffcccc;">Colheita Feliz</div>
+                    <div class="enemy-item">Gerente do BK</div>
+                    <div class="enemy-item">Claro</div>
+                    <div class="enemy-item">Google</div>
+                    <div class="enemy-item">Instagram</div>
+                    <div class="enemy-item">YouTube</div>
+                    <div class="enemy-item">Gays</div>
+                    
+                    <!-- HIGH TIER (Recorrentes e famosos) -->
+                    <div class="enemy-item">Katy Perry</div>
+                    <div class="enemy-item">Jair Bolsonaro</div>
+                    <div class="enemy-item">Pabllo Vittar</div>
+                    <div class="enemy-item">Gretchen</div>
+                    <div class="enemy-item">Subway</div>
+                    <div class="enemy-item">McDonalds</div>
+                    <div class="enemy-item">Havaianas</div>
+                    <div class="enemy-item">Correios</div>
+                    <div class="enemy-item">Coca-Cola</div>
+                    <div class="enemy-item">Sodie Doces</div>
+                    <div class="enemy-item">Ifood</div>
+                    <div class="enemy-item">Uber</div>
+                    <div class="enemy-item">Uber Eats</div>
+                    <div class="enemy-item">Samsung</div>
+                    <div class="enemy-item">Dafiti</div>
+                    <div class="enemy-item">Friboi</div>
+                    <div class="enemy-item">Natura</div>
+
+                    <!-- MID TIER (Mencionados em vídeos específicos) -->
+                    <div class="enemy-item">Young Store</div>
+                    <div class="enemy-item">Gina Palitos</div>
+                    <div class="enemy-item">Hotel Victoria Concept</div>
+                    <div class="enemy-item">Furo MTV</div>
+                    <div class="enemy-item">Carol Coxinhas</div>
+                    <div class="enemy-item">Síndico Dela</div>
+                    <div class="enemy-item">Pullman</div>
+                    <div class="enemy-item">Embelleze</div>
+                    <div class="enemy-item">Fabiola Reipert</div>
+                    <div class="enemy-item">Atacadão</div>
+                    <div class="enemy-item">Mara Maravilha</div>
+                    <div class="enemy-item">Cotonetes Topz</div>
+                    <div class="enemy-item">Pronto-Socorro</div>
+                    <div class="enemy-item">Johnson & Johnson</div>
+                    <div class="enemy-item">Panificadora Luar</div>
+                    <div class="enemy-item">Éder</div>
+                    <div class="enemy-item">Equipe Cantor Daniel</div>
+                    <div class="enemy-item">Paula Viana</div>
+                    <div class="enemy-item">Alice</div>
+                    <div class="enemy-item">Teleton</div>
+                    <div class="enemy-item">Gerente Josy</div>
+                    <div class="enemy-item">Coqueiro</div>
+                    <div class="enemy-item">Rodrigo Carelli</div>
+                    <div class="enemy-item">Mama Bruschetta</div>
+                    <div class="enemy-item">Tang</div>
+                    <div class="enemy-item">Frisco</div>
+                    <div class="enemy-item">Sucos Xandô</div>
+                    <div class="enemy-item">Trolls da Internet</div>
+                    <div class="enemy-item">Jana</div>
+                    <div class="enemy-item">Site Petz</div>
+                    <div class="enemy-item">KFC</div>
+                    <div class="enemy-item">Site Submarino</div>
+                    <div class="enemy-item">Marca Galo</div>
+                    <div class="enemy-item">Nissin Lamen</div>
+                    <div class="enemy-item">Cacau Show</div>
+                    <div class="enemy-item">Habbo Hotel</div>
+                    <div class="enemy-item">Tenda</div>
+                    <div class="enemy-item">Absorvente Always</div>
+                    <div class="enemy-item">Allemand</div>
+                    <div class="enemy-item">Drogaria Sao Paulo</div>
+                    <div class="enemy-item">Correio Popular</div>
+                    <div class="enemy-item">Portugal</div>
+                    <div class="enemy-item">Portuguesa</div>
+                    <div class="enemy-item">Koleston</div>
+                    <div class="enemy-item">Super Slim X</div>
+                    <div class="enemy-item">Sup. Pague Menos</div>
+                    <div class="enemy-item">Bebidas do Sul</div>
+                    <div class="enemy-item">Salão Legalitè</div>
+                    <div class="enemy-item">Revie</div>
+                    <div class="enemy-item">Comfort Flex</div>
+                    <div class="enemy-item">Tecnico Agressor</div>
+                    <div class="enemy-item">Premiatto Shopping</div>
+                    <div class="enemy-item">Floricultura Sol</div>
+                    <div class="enemy-item">Gustavo Mendes</div>
+                    <div class="enemy-item">Petiko</div>
+                    <div class="enemy-item">Adm Rafa Kalimann</div>
+                    <div class="enemy-item">Milton Sobrancelhas</div>
+                    <div class="enemy-item">Sup. Goodbom</div>
+                    <div class="enemy-item">Lowcarb.Receitas.Fits</div>
+                    <div class="enemy-item">We Love Makes</div>
+                    <div class="enemy-item">Gelatina</div>
+                    <div class="enemy-item">Diva Depressão</div>
+                    <div class="enemy-item">Davi da Costa</div>
+                    <div class="enemy-item">Igor Saringer</div>
+                    <div class="enemy-item">Festival Milkshake</div>
+                    <div class="enemy-item">Zelador Condomínio</div>
+                    <div class="enemy-item">Golpista Habbo</div>
+                    <div class="enemy-item">"Do PCC"</div>
+                    <div class="enemy-item">Roberto Justus</div>
+                    <div class="enemy-item">Gabi Bolos</div>
+                    <div class="enemy-item">S.U.S</div>
+                    <div class="enemy-item">Ciclistas Entregadores</div>
+                    <div class="enemy-item">Lojas Americanas</div>
+                    <div class="enemy-item">Mercadolivre</div>
+                    <div class="enemy-item">Kodilar</div>
+                </div>
+            </div>
         </div>
     </section>
 
     <!-- FIM -->
     <section id="outro" data-lvl="lvl-abyss" data-bg="#000000">
         <div class="container">
-            <h2 style="font-family: var(--font-horror); color: #666;">Fim do Dossiê</h2>
-            <button onclick="window.scrollTo({top: 0, behavior: 'smooth'})" style="padding: 15px 40px; border: 1px solid #444; background: transparent; color: #888; cursor: pointer; margin-top: 30px;">VOLTAR AO INÍCIO</button>
+            <div class="text-group" style="align-items: center; text-align: center;">
+                <h2 style="font-family: var(--font-horror); color: #666;">Fim do Dossiê</h2>
+                <button onclick="window.scrollTo({top: 0, behavior: 'smooth'})" style="padding: 15px 40px; border: 1px solid #444; background: transparent; color: #888; cursor: pointer; margin-top: 30px;">VOLTAR AO INÍCIO</button>
+            </div>
         </div>
     </section>
 
