@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vida e Morte de Tulla Luana</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;700;900&family=Cinzel:wght@700&family=Nosifer&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <style>
+        /* --- 1. RESET E VARIÁVEIS --- */
+        :root {
+            --font-main: 'Urbanist', sans-serif;
+            --font-title: 'Cinzel', serif;
+            --font-horror: 'Nosifer', cursive;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: var(--font-main);
+            background-color: #050505;
+            overflow-x: hidden;
+            color: #fff;
+        }
+
+        /* --- 2. LAYOUT DO CENÁRIO (FUNDO) --- */
+        .scenery-layer {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1;
+            transition: background 1.5s ease;
+            background: linear-gradient(180deg, #F48FB1 0%, #F06292 100%); 
+            overflow: hidden;
+        }
+
+        /* Camada de Horror (Ruído/Noise) */
+        .horror-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 0;
+            opacity: 0;
+            pointer-events: none;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='1'/%3E%3C/svg%3E");
+            transition: opacity 2s ease;
+            mix-blend-mode: overlay;
+        }
+
+        /* O Desenho do Iceberg */
+        .iceberg-graphic {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -40%);
+            width: 800px;
+            height: auto;
+            opacity: 0.95;
+            transition: transform 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94), filter 1s ease;
+            filter: drop-shadow(0 0 25px rgba(255,255,255,0.3));
+            z-index: 1;
+        }
+        
+        /* --- 3. ESTRUTURA DAS SEÇÕES (LAYOUT GRANDE) --- */
+        section {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            position: relative;
+            z-index: 3;
+            perspective: 1000px;
+        }
+
+        .container {
+            max-width: 1000px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            opacity: 0; /* Fade in via JS */
+            transform: translateY(50px);
+            transition: all 0.8s ease-out;
+            position: relative;
+        }
+
+        section.visible .container {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* --- 4. TIPOGRAFIA E ELEMENTOS --- */
+        h1 {
+            font-size: clamp(3rem, 8vw, 6rem);
+            font-weight: 900;
+            text-transform: uppercase;
+            text-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            text-align: center;
+            margin-bottom: 20px;
+            line-height: 0.9;
+        }
+
+        h2 {
+            font-family: var(--font-title);
+            font-size: clamp(1.5rem, 2.5vw, 3rem);
+            margin-bottom: 20px;
+            text-align: center;
+            text-shadow: 0 4px 10px rgba(0,0,0,0.6);
+            text-transform: uppercase;
+            line-height: 1.2;
+            max-width: 90%;
+        }
+
+        .level-badge {
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            background: rgba(0,0,0,0.3);
+            padding: 8px 20px;
+            border-radius: 30px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        /* --- 5. SLOT DE MÍDIA GRANDE (GIF TENOR) --- */
+        .media-slot {
+            width: 100%;
+            max-width: 900px;
+            /* Removemos aspect-ratio fixo para deixar o Tenor ajustar, mas mantemos altura min */
+            min-height: 400px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: rgba(255, 255, 255, 0.5);
+            transition: all 0.4s ease;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.5);
+            position: relative;
+            overflow: hidden;
+            margin: 20px 0;
+            padding: 10px;
+        }
+
+        .media-slot:hover {
+            border-color: #fff;
+            transform: scale(1.01);
+        }
+
+        .media-desc {
+            font-size: 1.1rem;
+            font-style: italic;
+            opacity: 0.8;
+            margin-top: 15px;
+            text-align: center;
+        }
+
+        /* Slot de Terror */
+        .horror-slot {
+            border-color: #800000;
+            background: rgba(30, 0, 0, 0.8);
+            box-shadow: 0 0 50px rgba(255, 0, 0, 0.2);
+        }
+        .horror-slot h2 { color: #ff4444; font-family: var(--font-horror); }
+
+        /* --- 6. FRASES FLUTUANTES (QUOTES) --- */
+        .floating-quote {
+            position: absolute;
+            font-family: 'Cinzel', serif;
+            font-style: italic;
+            color: rgba(255, 255, 255, 0.2); 
+            pointer-events: none;
+            z-index: 1;
+            white-space: nowrap;
+            animation: floatText 8s infinite ease-in-out;
+            font-weight: 900;
+            text-shadow: 0 0 20px rgba(255,255,255,0.1);
+            font-size: 3rem; 
+        }
+
+        @keyframes floatText {
+            0%, 100% { transform: translateY(0) rotate(-2deg); }
+            50% { transform: translateY(-30px) rotate(2deg); }
+        }
+
+        .q-left { top: 20%; left: -5%; }
+        .q-right { bottom: 20%; right: -5%; animation-delay: 1s; }
+        
+        .horror-quote {
+            color: rgba(255, 0, 0, 0.3);
+            font-family: var(--font-horror);
+        }
+
+        /* --- 7. NAVEGAÇÃO LATERAL --- */
+        .depth-gauge {
+            position: fixed;
+            right: 30px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            z-index: 100;
+        }
+
+        .depth-dot {
+            width: 10px;
+            height: 10px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .depth-dot.active { background: #fff; transform: scale(1.5); box-shadow: 0 0 15px #fff; }
+
+        /* --- 8. EFEITOS --- */
+        .glitch-text {
+            animation: glitch 3s infinite;
+            color: #FF0000 !important;
+            font-family: var(--font-horror) !important;
+        }
+        @keyframes glitch {
+            0% { transform: skew(0deg); }
+            20% { transform: skew(-10deg); }
+            21% { transform: skew(10deg); }
+            22% { transform: skew(0deg); }
+            100% { transform: skew(0deg); }
+        }
+
+        /* Movimento Iceberg */
+        body.lvl-start .iceberg-graphic { transform: translate(-50%, -35%) scale(1.0); }
+        body.lvl-surface .iceberg-graphic { transform: translate(-50%, -40%) scale(1.1); }
+        body.lvl-shallow .iceberg-graphic { transform: translate(-50%, -50%) scale(1.2); }
+        body.lvl-deep .iceberg-graphic { transform: translate(-50%, -60%) scale(1.3); filter: brightness(0.7); }
+        body.lvl-abyss .iceberg-graphic { transform: translate(-50%, -80%) scale(1.5); filter: brightness(0.3) grayscale(1); }
+        body.lvl-abyss .scenery-layer { background: #050000 !important; }
+        body.lvl-abyss .horror-overlay { opacity: 0.2; }
+
+    </style>
+</head>
+<body class="lvl-start">
+
+    <!-- CENÁRIO -->
+    <div class="scenery-layer" id="bgLayer">
+        <div class="horror-overlay"></div>
+        <svg class="iceberg-graphic" viewBox="0 0 500 800" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <linearGradient id="gradDeep" x1="250" y1="150" x2="250" y2="800" gradientUnits="userSpaceOnUse">
+                    <stop stop-color="#81D4FA"/>
+                    <stop offset="0.3" stop-color="#29B6F6"/>
+                    <stop offset="0.7" stop-color="#0277BD"/>
+                    <stop offset="1" stop-color="#01579B"/>
+                </linearGradient>
+                <linearGradient id="gradCracks" x1="250" y1="200" x2="250" y2="750" gradientUnits="userSpaceOnUse">
+                    <stop stop-color="rgba(0,0,0,0.1)"/>
+                    <stop offset="0.5" stop-color="rgba(0,0,0,0.3)"/>
+                    <stop offset="1" stop-color="rgba(0,0,0,0.5)"/>
+                </linearGradient>
+                <linearGradient id="gradSnow" x1="250" y1="20" x2="250" y2="150" gradientUnits="userSpaceOnUse">
+                    <stop stop-color="#FFFFFF"/>
+                    <stop offset="1" stop-color="#E1F5FE"/>
+                </linearGradient>
+            </defs>
+            <g filter="url(#iceTexture)">
+                <path d="M250 150 L380 200 L420 300 L450 450 L400 650 L320 750 L250 780 L180 750 L100 680 L80 500 L50 400 L120 200 Z" fill="url(#gradDeep)" opacity="0.9"/>
+                <path d="M120 200 L150 350 L100 550 L130 650 L200 720 L250 750 L300 720 L370 650 L400 550 L350 350 L380 200 Z" fill="rgba(255,255,255,0.05)"/>
+                <path d="M250 150 L300 250 L350 400 L300 600 L250 700 L200 600 L150 400 L200 250 Z" fill="rgba(255,255,255,0.03)"/>
+                <path d="M250 150 L320 220 L350 380 L300 550 L250 700 L200 550 L150 380 L180 220 Z" fill="url(#gradCracks)"/>
+            </g>
+            <g filter="url(#snowTexture)">
+                <path d="M250 20 L300 60 L320 100 L380 150 L120 150 L180 100 L200 60 Z" fill="url(#gradSnow)"/>
+            </g>
+            <filter id="iceTexture"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="3" result="noise"/><feDisplacementMap in="SourceGraphic" in2="noise" scale="10"/></filter>
+            <filter id="snowTexture"><feTurbulence type="fractalNoise" baseFrequency="0.05" numOctaves="2" result="noiseSnow"/><feDisplacementMap in="SourceGraphic" in2="noiseSnow" scale="5"/></filter>
+        </svg>
+    </div>
+
+    <!-- NAVEGAÇÃO -->
+    <nav class="depth-gauge">
+        <div class="depth-dot active" onclick="scrollToId('cover')"></div>
+        <!-- Superfície -->
+        <div class="depth-dot" onclick="scrollToId('s1')"></div>
+        <div class="depth-dot" onclick="scrollToId('s2')"></div>
+        <div class="depth-dot" onclick="scrollToId('s3')"></div>
+        <!-- Raso -->
+        <div class="depth-dot" onclick="scrollToId('r1')"></div>
+        <div class="depth-dot" onclick="scrollToId('r2')"></div>
+        <div class="depth-dot" onclick="scrollToId('r3')"></div>
+        <!-- Profundo -->
+        <div class="depth-dot" onclick="scrollToId('p1')"></div>
+        <div class="depth-dot" onclick="scrollToId('p2')"></div>
+        <div class="depth-dot" onclick="scrollToId('p3')"></div>
+        <!-- Abismo -->
+        <div class="depth-dot" onclick="scrollToId('a1')"></div>
+        <div class="depth-dot" onclick="scrollToId('a2')"></div>
+        <div class="depth-dot" onclick="scrollToId('outro')"></div>
+    </nav>
+
+    <!-- CAPA -->
+    <section id="cover" data-lvl="lvl-start" data-bg="linear-gradient(180deg, #F48FB1 0%, #F06292 100%)">
+        <div class="container">
+            <span style="letter-spacing: 5px; text-transform: uppercase;">Dossiê Completo</span>
+            <h1>Vida e Morte de<br>Tulla Luana</h1>
+            <p style="font-size: 1.2rem; margin-top: 20px; max-width: 600px; text-align: center;">
+                Mergulhe nas camadas da "Web Diva". Dos memes virais às tragédias e crimes reais.
+            </p>
+            <i class="fa-solid fa-chevron-down" style="font-size: 2rem; margin-top: 50px; animation: bounce 2s infinite;"></i>
+        </div>
+    </section>
+
+    <!-- === NÍVEL 1: SUPERFÍCIE === -->
+
+    <!-- 1. COLHEITA FELIZ -->
+    <section id="s1" data-lvl="lvl-surface" data-bg="linear-gradient(180deg, #4FC3F7 0%, #29B6F6 100%)">
+        <div class="floating-quote q-left">"MOEDAS VERDES NÃO!"</div>
+        <div class="container">
+            <div class="level-badge">Nível 1: Superfície</div>
+            <h2>PROPAGANDA ENGANOSA DA COLHEITA FELIZ</h2>
+            <div class="media-slot">
+                <div class="tenor-gif-embed" data-postid="17227742" data-share-method="host" data-aspect-ratio="1" data-width="100%"><a href="https://tenor.com/view/tulla-luana-web-diva-moves-dancing-feeling-it-gif-17227742">Tulla Luana Web Diva GIF</a>from <a href="https://tenor.com/search/tulla+luana-gifs">Tulla Luana GIFs</a></div> <script type="text/javascript" async src="https://tenor.com/embed.js"></script>
+            </div>
+            <p class="media-desc">O vídeo fundador no Orkut. A revolta pelas moedas verdes vs douradas.</p>
+        </div>
+    </section>
+
+    <!-- 2. BURGUER KING -->
+    <section id="s2" data-lvl="lvl-surface" data-bg="linear-gradient(180deg, #29B6F6 0%, #039BE5 100%)">
+        <div class="floating-quote q-right">"NÃO ADMITO SER DESRESPEITADA!"</div>
+        <div class="container">
+            <div class="level-badge">Nível 1: Superfície</div>
+            <h2>WEB DIVA NO SEU 3° PASSEIO TEVE UM DESCONTROLE POR CAUSA DO ATEND. DO GER.DO BURGUER KING!</h2>
+            <div class="media-slot">
+                <div class="tenor-gif-embed" data-postid="17336791" data-share-method="host" data-aspect-ratio="1" data-width="100%"><a href="https://tenor.com/view/tulla-luana-black-shirt-burger-king-gif-17336791">Tulla Luana Black Shirt GIF</a>from <a href="https://tenor.com/search/tulla+luana-gifs">Tulla Luana GIFs</a></div> <script type="text/javascript" async src="https://tenor.com/embed.js"></script>
+            </div>
+            <p class="media-desc">O meme global. Tulla de preto surtando no BK.</p>
+        </div>
+    </section>
+
+    <!-- 3. TRAIÇÃO (SUBSTITUI BRIGA CELULAR) -->
+    <section id="s3" data-lvl="lvl-surface" data-bg="linear-gradient(180deg, #039BE5 0%, #0288D1 100%)">
+        <div class="floating-quote q-left">"ME TRAIU COM OUTRA!"</div>
+        <div class="container">
+            <div class="level-badge">Nível 1: Superfície</div>
+            <h2>João Carlos conta como traiu sua adorável amada Web Diva Tulla Luana</h2>
+            <div class="media-slot">
+                <div class="tenor-gif-embed" data-postid="12089486" data-share-method="host" data-aspect-ratio="1.78" data-width="100%"><a href="https://tenor.com/view/tulla-luana-jo%C3%A3o-carlos-shower-taking-a-shower-s-hower-together-gif-12089486">Tulla Luana João Carlos GIF</a>from <a href="https://tenor.com/search/tulla+luana-gifs">Tulla Luana GIFs</a></div> <script type="text/javascript" async src="https://tenor.com/embed.js"></script>
+            </div>
+            <p class="media-desc">A exposição total da intimidade e o drama conjugal no chuveiro.</p>
+        </div>
+    </section>
+
+
+    <!-- === NÍVEL 2: RASO === -->
+
+    <!-- 4. TENDA -->
+    <section id="r1" data-lvl="lvl-shallow" data-bg="linear-gradient(180deg, #0288D1 0%, #0277BD 100%)">
+        <div class="floating-quote q-right">"SUBGERENTE INCOMPETENTE!"</div>
+        <div class="container">
+            <div class="level-badge">Nível 2: Raso</div>
+            <h2>SUBGERENTE DO TENDA ATACADO D PEDRO EM QUESTÃO É EXTREMAMENTE INCOMPETENTE!</h2>
+            <div class="media-slot">
+                <div class="tenor-gif-embed" data-postid="11927848" data-share-method="host" data-aspect-ratio="1" data-width="100%"><a href="https://tenor.com/view/tulla-meme-nojo-cuspe-drinkand-blow-gif-11927848">Tulla Meme GIF</a>from <a href="https://tenor.com/search/tulla-gifs">Tulla GIFs</a></div> <script type="text/javascript" async src="https://tenor.com/embed.js"></script>
+            </div>
+            <p class="media-desc">"Cuspo na sua cara!" - Humilhando autoridade em público.</p>
+        </div>
+    </section>
+
+    <!-- 5. PABLLO VITTAR (SUBSTITUI JANA) -->
+    <section id="r2" data-lvl="lvl-shallow" data-bg="linear-gradient(180deg, #0277BD 0%, #01579B 100%)">
+        <div class="floating-quote q-left">"QUE CARA É ESSA?"</div>
+        <div class="container">
+            <div class="level-badge">Nível 2: Raso</div>
+            <h2>PABLLO VITTAR DEFORMADA?</h2>
+            <div class="media-slot">
+                <div class="tenor-gif-embed" data-postid="10329286" data-share-method="host" data-aspect-ratio="1" data-width="100%"><a href="https://tenor.com/view/tulla-luana-pabllo-vittar-meme-gif-10329286">Tulla Luana GIF</a>from <a href="https://tenor.com/search/tulla-gifs">Tulla GIFs</a></div> <script type="text/javascript" async src="https://tenor.com/embed.js"></script>
+            </div>
+            <p class="media-desc">Quando ela apavorou a drag queen por causa de uma foto.</p>
+        </div>
+    </section>
+
+    <!-- 6. TIM -->
+    <section id="r3" data-lvl="lvl-shallow" data-bg="linear-gradient(180deg, #01579B 0%, #1565C0 100%)">
+        <div class="floating-quote q-right">"CALA A BOCA SUA INÚTIL!"</div>
+        <div class="container">
+            <div class="level-badge">Nível 2: Raso</div>
+            <h2>MAIS UMA VEZ VOU ATRÁS DOS MEUS DIREITOS E DESSA VEZ CONTRA A OPERADORA TIM!!!</h2>
+            <div class="media-slot">
+                <div class="tenor-gif-embed" data-postid="17126909" data-share-method="host" data-aspect-ratio="1" data-width="100%"><a href="https://tenor.com/view/web-diva-tulla-luana-tulla-luana-fontes-dos-santos-youtuber-break-phone-angry-gif-17126909">Web Diva Tulla Luana Tulla Luana Fontes Dos Santos GIF</a>from <a href="https://tenor.com/search/web+diva+tulla+luana-gifs">Web Diva Tulla Luana GIFs</a></div> <script type="text/javascript" async src="https://tenor.com/embed.js"></script>
+            </div>
+            <p class="media-desc">A crueldade nua e crua contra o telemarketing.</p>
+        </div>
+    </section>
+
+
+    <!-- === NÍVEL 3: PROFUNDO === -->
+
+    <!-- 7. CPFL/SKY -->
+    <section id="p1" data-lvl="lvl-deep" data-bg="linear-gradient(180deg, #1565C0 0%, #0D47A1 100%)">
+        <div class="floating-quote q-left">"VOU TACAR FOGO NESSA BOSTA!"</div>
+        <div class="container">
+            <div class="level-badge">Nível 3: Profundo</div>
+            <h2>Atenção: Problemas com Sky e CPFL após o temporal</h2>
+            <div class="media-slot" style="border-color: #FFD54F;">
+                <div class="tenor-gif-embed" data-postid="10470554" data-share-method="host" data-aspect-ratio="1.07843" data-width="100%"><a href="https://tenor.com/view/tulla-luana-tullaluana-gif-10470554">Tulla Luana GIF</a>from <a href="https://tenor.com/search/tulla-gifs">Tulla GIFs</a></div> <script type="text/javascript" async src="https://tenor.com/embed.js"></script>
+            </div>
+            <p class="media-desc">"Você confirmou que minha casa é bagunçada?" - A paranoia começa.</p>
+        </div>
+    </section>
+
+    <!-- 8. PCC (NOVO) -->
+    <section id="p2" data-lvl="lvl-deep" data-bg="linear-gradient(180deg, #0D47A1 0%, #1A237E 100%)">
+        <div class="floating-quote q-right">"VEM PRIMEIRO COMANDO!"</div>
+        <div class="container">
+            <div class="level-badge">Nível 3: Profundo</div>
+            <h2>BRIGA NA SORVETERIA COM O PCC</h2>
+            <div class="media-slot" style="border-color: #90CAF9;">
+                <div class="tenor-gif-embed" data-postid="17514519976022374760" data-share-method="host" data-aspect-ratio="1" data-width="100%"><a href="https://tenor.com/view/acervogifs-pandlr-tulla-luana-bcharts-briga-gif-17514519976022374760">Acervogifs Pandlr GIF</a>from <a href="https://tenor.com/search/acervogifs-gifs">Acervogifs GIFs</a></div> <script type="text/javascript" async src="https://tenor.com/embed.js"></script>
+            </div>
+            <p class="media-desc">A lenda urbana de que ela desafiou uma facção criminosa por causa de sorvete.</p>
+        </div>
+    </section>
+
+    <!-- 9. COISA NANICA -->
+    <section id="p3" data-lvl="lvl-deep" data-bg="linear-gradient(180deg, #1A237E 0%, #311B92 100%)">
+        <div class="floating-quote q-left">"ESTÃO OLHANDO PRA MIM..."</div>
+        <div class="container">
+            <div class="level-badge">Nível 3: Profundo</div>
+            <h2>aquele baixinho ali aquela coisa nanica</h2>
+            <div class="media-slot" style="border-color: #B39DDB;">
+                <div class="tenor-gif-embed" data-postid="22982801" data-share-method="host" data-aspect-ratio="1.14695" data-width="100%"><a href="https://tenor.com/view/tulla-coisa-nanica-luana-gif-22982801">Tulla Coisa GIF</a>from <a href="https://tenor.com/search/tulla-gifs">Tulla GIFs</a></div> <script type="text/javascript" async src="https://tenor.com/embed.js"></script>
+            </div>
+            <p class="media-desc">Surto persecutório no hotel. A sensação de estar sendo vigiada.</p>
+        </div>
+    </section>
+
+
+    <!-- === NÍVEL 4: O ABISMO (O LADO SOMBRIO) === -->
+
+    <!-- 10. HORST -->
+    <section id="a1" data-lvl="lvl-abyss" data-bg="linear-gradient(180deg, #150000 0%, #050000 100%)">
+        <div class="floating-quote horror-quote q-right">"JÁ VAI TARDE!"</div>
+        <div class="container">
+            <div class="level-badge" style="border-color: red; color: red;">Nível 4: O Abismo</div>
+            <h2 class="glitch-text">O HORST MORREU</h2>
+            <div class="media-slot horror-slot">
+                <div class="tenor-gif-embed" data-postid="7911853" data-share-method="host" data-aspect-ratio="1.09453" data-width="100%"><a href="https://tenor.com/view/tulla-luana-salientada-gif-7911853">Tulla Luana GIF</a>from <a href="https://tenor.com/search/tulla-gifs">Tulla GIFs</a></div> <script type="text/javascript" async src="https://tenor.com/embed.js"></script>
+            </div>
+            <p class="media-desc">"Achei foi pouco! Queime no inferno!" - A reação macabra à morte do padrasto.</p>
+        </div>
+    </section>
+
+    <!-- 11. NICKI MINAJ -->
+    <section id="a2" data-lvl="lvl-abyss" data-bg="#000000">
+        <div class="floating-quote horror-quote q-left" style="font-size: 4rem;">"NÃO TEM CURA!"</div>
+        <div class="container">
+            <div class="level-badge" style="border-color: red; color: red;">Fundo do Poço</div>
+            <h2 class="glitch-text" style="font-size: 3.5rem;">CASO NICKI MINAJ</h2>
+            <div class="media-slot horror-slot" style="border: 3px solid red; box-shadow: 0 0 50px red;">
+                <div class="tenor-gif-embed" data-postid="4488682849370741506" data-share-method="host" data-aspect-ratio="1.72917" data-width="100%"><a href="https://tenor.com/view/tulla-luana-lady-katy-tulla-luana-tulla-luana-cachorro-gif-4488682849370741506">Tulla Luana Lady Katy Tulla Luana Cachorro GIF</a>from <a href="https://tenor.com/search/tulla+luana+lady+katy-gifs">Tulla Luana Lady Katy GIFs</a></div> <script type="text/javascript" async src="https://tenor.com/embed.js"></script>
+            </div>
+            <p class="media-desc">"Você é escura por fora e por dentro." O racismo explícito que manchou sua história.</p>
+        </div>
+    </section>
+
+    <!-- FIM -->
+    <section id="outro" data-lvl="lvl-abyss" data-bg="#000000">
+        <div class="container">
+            <h2 style="font-family: var(--font-horror); color: #666;">Fim do Dossiê</h2>
+            <button onclick="window.scrollTo({top: 0, behavior: 'smooth'})" style="padding: 15px 40px; border: 1px solid #444; background: transparent; color: #888; cursor: pointer; margin-top: 30px;">VOLTAR AO INÍCIO</button>
+        </div>
+    </section>
+
+    <script>
+        const bgLayer = document.getElementById('bgLayer');
+        const sections = document.querySelectorAll('section');
+        const dots = document.querySelectorAll('.depth-dot');
+        const body = document.body;
+
+        window.scrollToId = (id) => {
+            document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    
+                    const newBg = entry.target.getAttribute('data-bg');
+                    if (newBg) bgLayer.style.background = newBg;
+
+                    const lvlClass = entry.target.getAttribute('data-lvl');
+                    body.className = ''; 
+                    if (lvlClass) body.classList.add(lvlClass);
+
+                    dots.forEach((dot, index) => {
+                        dot.classList.remove('active');
+                        if (sections[index] === entry.target) {
+                            dot.classList.add('active');
+                        }
+                    });
+                }
+            });
+        }, { threshold: 0.3 });
+
+        sections.forEach(section => observer.observe(section));
+    </script>
+</body>
+</html>
